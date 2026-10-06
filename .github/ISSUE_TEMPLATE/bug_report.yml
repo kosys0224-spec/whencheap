@@ -1,0 +1,21 @@
+name: Bug report
+description: Wrong window, crash, or installation problem
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Command and output (add --json if possible; attach `whencheap prices --json` output for data issues)
+      render: shell
+  - type: input
+    id: version
+    attributes:
+      label: whencheap --version, Python version, OS
+    validations:
+      required: true
