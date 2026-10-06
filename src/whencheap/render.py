@@ -18,6 +18,18 @@ CYAN = "\033[36m"
 BG_GREEN = "\033[42;30m"
 
 
+def _utf8_stdout() -> bool:
+    enc = (getattr(sys.stdout, "encoding", None) or "").lower()
+    return "utf" in enc
+
+
+def glyphs() -> dict:
+    """Unicode bars/markers when the terminal can show them, plain ASCII otherwise (e.g. Windows cp1252)."""
+    if _utf8_stdout():
+        return {"bar": "\u2588", "win": "\u25b6", "now": "\u00b7"}
+    return {"bar": "#", "win": ">", "now": "*"}
+
+
 def use_color(force: bool = False, disable: bool = False) -> bool:
     if disable or os.environ.get("NO_COLOR"):
         return False
@@ -121,10 +133,11 @@ def bar_chart(series: PriceSeries, now: datetime, highlight: Optional[Window] = 
             last_day = day
         n = max(1, int(round((price - lo) / span * width)))
         colour = GREEN if price <= t1 else (RED if price >= t2 else YELLOW)
-        bar = "█" * n
+        g = glyphs()
+        bar = g["bar"] * n
         is_now = st <= now < en
         in_win = highlight is not None and st < highlight.end and en > highlight.start
-        marker = "▶" if in_win else (" " if not is_now else "·")
+        marker = g["win"] if in_win else (" " if not is_now else g["now"])
         label = local.strftime("%H:%M")
         line = "%s %s %s %s" % (c(DIM, label, color) if not in_win else c(BOLD, label, color), marker, c(colour, bar, color), c(DIM, fmt_price(price, series.unit), color))
         if is_now:

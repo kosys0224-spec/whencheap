@@ -298,7 +298,17 @@ def cmd_cache(args) -> int:
     return EXIT_OK
 
 
+def _safe_stdout() -> None:
+    """Never crash on a terminal that cannot encode a character (Windows cp1252): replace it instead."""
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(errors="replace")  # type: ignore[attr-defined]
+        except Exception:
+            pass
+
+
 def main(argv: Optional[List[str]] = None) -> int:
+    _safe_stdout()
     parser = build_parser()
     args = parser.parse_args(argv)
     if not args.cmd:
