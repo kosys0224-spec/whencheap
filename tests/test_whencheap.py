@@ -238,7 +238,7 @@ class TestCli(unittest.TestCase):
     def test_prices(self):
         code, out, _ = self.run_cli("prices", "--prices-file", SAMPLE, "--now", "2026-10-06T14:20:00Z", "--no-color", "--tz", "Europe/Berlin")
         self.assertEqual(code, 0)
-        self.assertIn("█", out)
+        self.assertTrue("█" in out or "#" in out)
         self.assertIn("<- now", out)
         code, out, _ = self.run_cli("prices", "--prices-file", SAMPLE, "--json")
         self.assertEqual(json.loads(out)["zone"], "DE-LU")
@@ -271,6 +271,21 @@ class TestCli(unittest.TestCase):
         self.assertEqual(code, 2)
         code, _, _ = self.run_cli()
         self.assertEqual(code, 2)
+
+
+class TestRender(unittest.TestCase):
+    def test_ascii_fallback_without_utf8(self):
+        from whencheap import render
+        s = hourly([1, 2, 3])
+        real = sys.stdout
+        try:
+            sys.stdout = io.TextIOWrapper(io.BytesIO(), encoding="cp1252")
+            lines = render.bar_chart(s, T0, None, color=False)
+        finally:
+            sys.stdout = real
+        joined = "\n".join(lines)
+        joined.encode("cp1252")  # must be encodable
+        self.assertIn("#", joined)
 
 
 if __name__ == "__main__":
