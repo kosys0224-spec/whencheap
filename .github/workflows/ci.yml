@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Python ${{ matrix.python }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python: ["3.9", "3.12", "3.13"]
+        exclude:
+          - os: macos-latest
+            python: "3.9"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install
+        run: python -m pip install -e . tzdata
+      - name: Unit tests (offline)
+        run: python -m unittest discover -s tests -v
+      - name: Smoke test from the sample file
+        shell: bash
+        run: |
+          whencheap --version
+          whencheap zones --json > /dev/null
+          whencheap next --prices-file examples/sample-prices-DE-LU.json -d 2h --now 2026-10-06T17:20:00Z --no-color
+          whencheap run --prices-file examples/sample-prices-DE-LU.json -d 1h --by 07:00 --now 2026-10-06T20:00:00Z --dry-run -- echo hi
