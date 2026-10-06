@@ -1,0 +1,14 @@
+{
+  "name": "Example 3-tier time-of-use plan",
+  "unit": "KRW/kWh",
+  "timezone": "Asia/Seoul",
+  "default": 120.0,
+  "periods": [
+    {"days": "mon-fri", "from": "10:00", "to": "12:00", "price": 196.0, "label": "peak"},
+    {"days": "mon-fri", "from": "13:00", "to": "17:00", "price": 196.0, "label": "peak"},
+    {"days": "mon-fri", "from": "08:00", "to": "22:00", "price": 134.0, "label": "mid"},
+    {"days": "sat",     "from": "08:00", "to": "22:00", "price": 134.0, "label": "mid"},
+    {"days": "all",     "from": "22:00", "to": "08:00", "price": 86.0,  "label": "off-peak"},
+    {"days": "sun",     "from": "00:00", "to": "24:00", "price": 86.0,  "label": "off-peak"}
+  ]
+}
